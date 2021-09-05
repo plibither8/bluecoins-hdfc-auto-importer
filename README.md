@@ -1,10 +1,18 @@
-# hdfc-transaction-notify
+# bluecoins-hdfc-auto-importer
 
-> 💰🔔 Notify me on Telegram whenever a new transaction takes place in my HDFC bank account.
+> 💰🔔 Auto-imports transactions from my HDFC bank account into Bluecoins
+
+## Procedure
+
+1. Get new transactions from HDFC Netbanking
+2. Check if there are new transactions
+3. If yes, download latest backup files from Dropbox
+4. Send a message on Telegram regarding the transaction
+5. Add the new transaction to the backup database
+6. Upload the updated database back to Dropbox
+7. [Manually done] QuickSync with Dropbox on the Bluecoins app.
 
 Done by scraping via Puppeteer. Polls transaction list every 5 minutes using an external crontab.
-
-If you want to customise, make sure to modify the `notify()` function in the [index file](/index.js).
 
 ## License
 
