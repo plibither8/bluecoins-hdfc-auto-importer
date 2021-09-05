@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { Transaction } from "./hdfc.inteface";
+import { Transaction } from "./hdfc.interface";
 import { formatCurrency } from "./utils";
 
 async function sendMessage(message: string) {

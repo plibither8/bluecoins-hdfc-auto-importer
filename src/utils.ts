@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import path from "path";
-import { PptrElement } from "./hdfc.inteface";
+import { PptrElement } from "./hdfc.interface";
 
 export const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 

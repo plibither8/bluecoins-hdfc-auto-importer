@@ -1,5 +1,5 @@
-import type { Transaction, Item, TrackerData } from "./bluecoins.inteface";
-import type { Transaction as HdfcTransaction } from "./hdfc.inteface";
+import type { Transaction, Item, TrackerData } from "./bluecoins.interface";
+import type { Transaction as HdfcTransaction } from "./hdfc.interface";
 import fs from "fs/promises";
 import { Database } from "sqlite3";
 import Fuse from "fuse.js";

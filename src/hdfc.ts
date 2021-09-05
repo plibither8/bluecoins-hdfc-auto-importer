@@ -8,7 +8,7 @@ import type {
   Config,
   Transaction,
   TransactionData,
-} from "./hdfc.inteface";
+} from "./hdfc.interface";
 import { wait, amountToDecimal, hash, getJson, innerText } from "./utils";
 import constants from "./constants";
 
