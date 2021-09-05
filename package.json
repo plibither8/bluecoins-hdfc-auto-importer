@@ -1,0 +1,33 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc && tsconfig-replace-paths --project tsconfig.json",
+    "start": "node dist/main",
+    "lint": "eslint --ext .ts src",
+    "lint:fix": "eslint --ext .ts src --fix"
+  },
+  "dependencies": {
+    "@types/node": "^16.6.2",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.2",
+    "dotenv": "^10.0.0",
+    "dropbox": "^10.8.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "fuse.js": "^6.4.6",
+    "node-fetch": "^2.6.1",
+    "nodemon": "^2.0.12",
+    "prettier": "^2.3.2",
+    "puppeteer": "^10.2.0",
+    "sqlite3": "^5.0.2",
+    "ts-node": "^10.2.1",
+    "tsconfig-paths": "^3.10.1",
+    "tsconfig-replace-paths": "^0.0.5",
+    "typescript": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/sqlite3": "^3.1.7"
+  }
+}

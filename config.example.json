@@ -1,0 +1,7 @@
+{
+  "customerId": "",
+  "password": "",
+  "headless": true,
+  "secureAccess": false,
+  "accounts": ["account_alias"]
+}
