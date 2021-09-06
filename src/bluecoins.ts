@@ -53,6 +53,10 @@ async function getOrCreateItem(
       condition: (str) => str.includes("GST"),
       refiner: (str) => "Transfer Fee",
     },
+    {
+      condition: (str) => /^\d+-/.test(str),
+      refiner: (str) => str.split("-").slice(1).join(" "),
+    },
   ];
 
   const applicableRefiner = refiners.find((refiner) =>
@@ -93,7 +97,7 @@ async function getOrCreateItem(
   const newId =
     items
       .map((item) => Number(item.itemTableID))
-      .sort()
+      .sort((a, b) => a - b)
       .pop() + 1;
   const item = await new Promise<Item>((resolve, reject) => {
     db.run(
