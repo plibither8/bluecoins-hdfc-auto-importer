@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import path from "path";
 import { PptrElement } from "./hdfc.interface";
+import { spawnSync } from "child_process";
 
 export const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -39,3 +40,8 @@ export const bluecoinsDateFormat = (date: Date): string =>
     .toISOString()
     .replace("T", " ")
     .split(".")[0];
+
+export const killSelf = () => {
+  spawnSync("pkill", ["-f", "bluecoins-hdfc-auto-importer"]);
+  process.exit(0);
+};

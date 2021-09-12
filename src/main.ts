@@ -4,6 +4,7 @@ import * as dropbox from "./dropbox";
 import * as hdfc from "./hdfc";
 import * as bluecoins from "./bluecoins";
 import * as telegram from "./telegram";
+import { killSelf } from "./utils";
 
 envConfig({ path: path.resolve(__dirname, "../.env") });
 
@@ -43,6 +44,9 @@ async function main() {
   // Upload latest database
   console.log("Uploading latest database...");
   await dropbox.uploadFiles();
+
+  // Kill entire process after runnning
+  killSelf();
 }
 
 main();
