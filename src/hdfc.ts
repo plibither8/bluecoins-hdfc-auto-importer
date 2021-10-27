@@ -1,16 +1,16 @@
 import { config as envConfig } from "dotenv";
-import pptr, { Browser, Page } from "puppeteer";
 import { writeFile } from "fs/promises";
 import path from "path";
+import pptr, { Browser, Page } from "puppeteer";
+import constants from "./constants";
 import type {
-  State,
-  PptrElement,
   Config,
+  PptrElement,
+  State,
   Transaction,
   TransactionData,
 } from "./hdfc.interface";
-import { wait, amountToDecimal, hash, getJson, innerText } from "./utils";
-import constants from "./constants";
+import { amountToDecimal, getJson, hash, innerText, wait } from "./utils";
 
 envConfig({ path: path.resolve(__dirname, "../.env") });
 

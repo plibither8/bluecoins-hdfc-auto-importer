@@ -32,7 +32,7 @@ export async function notifyTransaction(
   await sendMessage(message);
 }
 
-export async function notifyBluecoinsAddition() {
-  const message = `✅ Transaction added to Bluecoins`;
+export async function notifyBluecoinsFailure() {
+  const message = `❌ Failed to add transaction to Bluecoins`;
   await sendMessage(message);
 }

@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ACCOUNTINGGROUPTABLE {
+  accountingGroupTableID Int     @id @default(autoincrement())
+  accountGroupName       String?
+}
+
+model ACCOUNTSTABLE {
+  accountsTableID            Int     @id @default(autoincrement())
+  accountName                String?
+  accountTypeID              Int?
+  accountHidden              Int?
+  accountCurrency            String?
+  accountConversionRateNew   Float?
+  currencyChanged            Int?
+  creditLimit                Int?
+  cutOffDa                   Int?
+  creditCardDueDate          Int?
+  cashBasedAccounts          Int?
+  accountSelectorVisibility  Int?
+  accountsExtraColumnString1 String?
+  accountsExtraColumnString2 String?
+  accountsExtraColumnInt1    String?
+  accountsExtraColumnInt2    String?
+
+  @@index([accountTypeID], map: "accountsTable1")
+}
+
+model ACCOUNTTYPETABLE {
+  accountTypeTableID Int     @id @default(autoincrement())
+  accountTypeName    String?
+  accountingGroupID  Int?
+
+  @@index([accountingGroupID], map: "accountsTypeTable1")
+}
+
+model CATEGORYGROUPTABLE {
+  categoryGroupTableID Int     @id @default(autoincrement())
+  categoryGroupName    String?
+}
+
+model CHILDCATEGORYTABLE {
+  categoryTableID            Int     @id @default(autoincrement())
+  childCategoryName          String?
+  parentCategoryID           Int?
+  budgetAmount               Int?
+  budgetPeriod               Int?
+  budgetEnabledCategoryChild Int?
+  childCategoryIcon          String?
+  categorySelectorVisibility Int?
+  budgetCustomSetup          String?
+  categoryExtraColumnString1 String?
+  categoryExtraColumnString2 String?
+  categoryExtraColumnInt1    String?
+  categoryExtraColumnInt2    String?
+
+  @@index([parentCategoryID], map: "categoryChildTable1")
+}
+
+model FILTERSTABLE {
+  filtersTableID Int     @id @default(autoincrement())
+  filtername     String?
+  filterJSON     String?
+}
+
+model ITEMTABLE {
+  itemTableID            Int     @id @default(autoincrement())
+  itemName               String?
+  itemAutoFillVisibility Int?
+}
+
+model LABELSTABLE {
+  labelsTableID       Int     @id @default(autoincrement())
+  labelName           String?
+  transactionIDLabels Int?
+}
+
+model NOTIFICATIONTABLE {
+  smsTableID                    Int     @id @default(autoincrement())
+  notificationPackageName       String?
+  notificationAppName           String?
+  notificationDefaultName       String?
+  notificationSenderCategoryID  Int?
+  notificationSenderAccountID   Int?
+  notificationSenderAmountOrder Int?
+}
+
+model PARENTCATEGORYTABLE {
+  parentCategoryTableID            Int     @id @default(autoincrement())
+  parentCategoryName               String?
+  categoryGroupID                  Int?
+  budgetAmountCategoryParent       Int?
+  budgetPeriodCategoryParent       Int?
+  budgetEnabledCategoryParent      Int?
+  budgetAmountOverride             Int?
+  budgetCustomSetupParent          String?
+  categoryParentExtraColumnString1 String?
+  categoryParentExtraColumnString2 String?
+  categoryParentExtraColumnInt1    String?
+  categoryParentExtraColumnInt2    String?
+
+  @@index([categoryGroupID], map: "categoryParentTable1")
+}
+
+model PICTURETABLE {
+  pictureTableID  Int     @id @default(autoincrement())
+  pictureFileName String?
+  transactionID   Int?
+}
+
+model SETTINGSTABLE {
+  settingsTableID Int     @id @default(autoincrement())
+  defaultSettings String?
+}
+
+model SMSSTABLE {
+  smsTableID        Int     @id @default(autoincrement())
+  senderName        String?
+  senderDefaultName String?
+  senderCategoryID  Int?
+  senderAccountID   Int?
+  senderAmountOrder Int?
+}
+
+model TRANSACTIONSTABLE {
+  transactionsTableID             Int       @id @default(autoincrement())
+  itemID                          Int?
+  amount                          Int?
+  transactionCurrency             String?
+  conversionRateNew               Float?
+  date                            DateTime? @default(now())
+  transactionTypeID               Int?
+  categoryID                      Int?
+  accountID                       Int?
+  notes                           String?
+  status                          Int?
+  accountReference                Int?
+  accountPairID                   Int?
+  uidPairID                       Int?
+  deletedTransaction              Int?
+  newSplitTransactionID           Int?
+  transferGroupID                 Int?
+  hasPhoto                        Int?
+  labelCount                      Int?
+  reminderTransaction             Int?
+  reminderGroupID                 Int?
+  reminderFrequency               Int?
+  reminderRepeatEvery             Int?
+  reminderEndingType              Int?
+  reminderStartDate               DateTime?
+  reminderEndDate                 DateTime?
+  reminderAfterNoOfOccurences     Int?
+  reminderAutomaticLogTransaction Int?
+  reminderRepeating               Int?
+  reminderRepeatByDayOfMonth      Int?
+  reminderExcludeWeekend          Int?
+  reminderWeekDayMoveSetting      Int?
+  reminderUnbilled                Int?
+  creditCardInstallment           Int?
+  reminderVersion                 Int?
+  dataExtraColumnString1          String?
+
+  @@index([categoryID], map: "transactionsTable2")
+  @@index([accountID], map: "transactionsTable1")
+}
+
+model TRANSACTIONTYPETABLE {
+  transactionTypeTableID Int     @id @default(autoincrement())
+  transactionTypeName    String?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model android_metadata {
+  locale String?
+
+  @@ignore
+}

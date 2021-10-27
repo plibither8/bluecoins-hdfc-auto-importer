@@ -1,7 +1,7 @@
 import { config as envConfig } from "dotenv";
-import path from "path";
-import fs from "fs/promises";
 import { Dropbox, DropboxResponse } from "dropbox";
+import fs from "fs/promises";
+import path from "path";
 import constants from "./constants";
 import { FileMetadataWithFileBinary } from "./dropbox.interface";
 

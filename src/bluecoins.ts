@@ -1,15 +1,13 @@
-import type { Transaction, Item, TrackerData } from "./bluecoins.interface";
-import type { Transaction as HdfcTransaction } from "./hdfc.interface";
+import { ITEMTABLE as Item, PrismaClient } from "@prisma/client";
 import fs from "fs/promises";
-import { Database } from "sqlite3";
 import Fuse from "fuse.js";
+import type { TrackerData } from "./bluecoins.interface";
 import constants from "./constants";
-import { bluecoinsDateFormat } from "./utils";
+import type { Transaction as HdfcTransaction } from "./hdfc.interface";
 
-async function getOrCreateItem(
-  db: Database,
-  transaction: HdfcTransaction
-): Promise<{
+const prisma = new PrismaClient();
+
+async function getOrCreateItem(transaction: HdfcTransaction): Promise<{
   item: Item;
   amount: number;
   currency: string;
@@ -66,14 +64,7 @@ async function getOrCreateItem(
 
   // Get items from the database
   console.log("Getting items from the database");
-  const items = await new Promise<Item[]>((resolve, reject) => {
-    db.all("SELECT * FROM ITEMTABLE", (err, rows) => {
-      if (err) {
-        console.error(err);
-        reject(err);
-      } else resolve(rows);
-    });
-  });
+  const items = await prisma.iTEMTABLE.findMany();
 
   // Search for a possible match
   const fuse = new Fuse(items, {
@@ -99,26 +90,12 @@ async function getOrCreateItem(
       .map((item) => Number(item.itemTableID))
       .sort((a, b) => a - b)
       .pop() + 1;
-  const item = await new Promise<Item>((resolve, reject) => {
-    db.run(
-      `INSERT INTO ITEMTABLE (
-        itemTableID,
-        itemName,
-        itemAutoFillVisibility
-      ) VALUES (?, ?, ?)`,
-      [newId, description, 0],
-      (err) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else
-          resolve({
-            itemTableID: newId,
-            itemName: description,
-            itemAutoFillVisibility: 0,
-          });
-      }
-    );
+  const item = await prisma.iTEMTABLE.create({
+    data: {
+      itemTableID: newId,
+      itemName: description,
+      itemAutoFillVisibility: 0,
+    },
   });
   return { item, amount, currency, conversionRateNew };
 }
@@ -127,85 +104,43 @@ export async function addTransaction(
   transaction: HdfcTransaction,
   accountId: number
 ) {
-  const db = new Database(constants.database.local);
   console.log("Getting or creating item");
   const { item, amount, currency, conversionRateNew } = await getOrCreateItem(
-    db,
     transaction
   );
 
   const transactionId = Date.now();
   console.log("Getting previous transaction");
-  const previousSimilarTransaction = await new Promise<Transaction>(
-    (resolve, reject) => {
-      db.get(
-        `
-          SELECT * FROM TRANSACTIONSTABLE
-          WHERE itemID = ? AND deletedTransaction = 6
-          ORDER BY date DESC
-          LIMIT 1
-        `,
-        [item.itemTableID],
-        (err, row) => {
-          if (err) {
-            console.error(err);
-            reject(err);
-          } else resolve(row);
-        }
-      );
-    }
-  );
+  const previousSimilarTransaction = await prisma.tRANSACTIONSTABLE.findFirst({
+    where: {
+      itemID: item.itemTableID,
+      deletedTransaction: 6,
+    },
+  });
   const categoryID = previousSimilarTransaction?.categoryID || 0;
 
   // Add transaction to the database
   console.log("Adding transaction to the database");
-  await new Promise<void>((resolve, reject) => {
-    db.run(
-      `INSERT INTO TRANSACTIONSTABLE (
-        transactionsTableID,
-        itemID,
-        amount,
-        transactionCurrency,
-        conversionRateNew,
-        date,
-        transactionTypeID,
-        categoryID,
-        accountID,
-        notes,
-        status,
-        accountReference,
-        accountPairID,
-        uidPairID,
-        deletedTransaction,
-        newSplitTransactionID,
-        transferGroupID
-      ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`,
-      [
-        transactionId,
-        item.itemTableID,
-        amount,
-        currency,
-        conversionRateNew,
-        bluecoinsDateFormat(transaction.date),
-        transaction.deposit === 0 ? 3 : 4,
-        categoryID,
-        accountId,
-        transaction.description,
-        0,
-        1,
-        accountId,
-        transactionId,
-        6,
-        0,
-        0,
-      ],
-      (err) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else resolve();
-      }
-    );
+  await prisma.tRANSACTIONSTABLE.create({
+    data: {
+      transactionsTableID: transactionId,
+      itemID: item.itemTableID,
+      amount,
+      transactionCurrency: currency,
+      conversionRateNew,
+      date: transaction.date,
+      transactionTypeID: transaction.deposit === 0 ? 3 : 4,
+      categoryID,
+      accountID: accountId,
+      notes: transaction.description,
+      status: 0,
+      accountReference: 1,
+      accountPairID: accountId,
+      uidPairID: transactionId,
+      deletedTransaction: 6,
+      newSplitTransactionID: 0,
+      transferGroupID: 0,
+    },
   });
 
   // Update tracker info
@@ -216,8 +151,4 @@ export async function addTransaction(
   tracker[1].tracking_id = transactionId.toString();
   tracker[2].timestamp = transactionId.toString();
   await fs.writeFile(constants.tracker.local, JSON.stringify(tracker));
-
-  // Close the database
-  console.log("Closing the database");
-  db.close();
 }

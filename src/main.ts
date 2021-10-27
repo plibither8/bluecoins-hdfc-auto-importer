@@ -1,8 +1,8 @@
 import { config as envConfig } from "dotenv";
 import path from "path";
+import * as bluecoins from "./bluecoins";
 import * as dropbox from "./dropbox";
 import * as hdfc from "./hdfc";
-import * as bluecoins from "./bluecoins";
 import * as telegram from "./telegram";
 import { killSelf } from "./utils";
 
@@ -29,16 +29,19 @@ async function main() {
       transaction.accountName
     );
 
-    // Add new transaction to database
-    console.log("Adding new transaction to database...");
-    await bluecoins.addTransaction(
-      transaction.transaction,
-      transaction.accountId
-    );
-
-    // Send Telegram message about Bluecoins
-    console.log("Sending Telegram message about Bluecoins...");
-    await telegram.notifyBluecoinsAddition();
+    try {
+      // Add new transaction to database
+      console.log("Adding new transaction to database...");
+      await bluecoins.addTransaction(
+        transaction.transaction,
+        transaction.accountId
+      );
+    } catch (err) {
+      // Send Telegram message about failure
+      console.error(err);
+      console.log("Sending Telegram message about failure...");
+      await telegram.notifyBluecoinsFailure();
+    }
   }
 
   // Upload latest database
