@@ -50,7 +50,13 @@ export function getRefinedItemName(transaction: Transaction): RefinedOutput {
   );
   if (result) {
     const [_, value] = result;
-    return typeof value === "string" ? { itemName: value } : value;
+    const response: RefinedOutput =
+      value === "string" ? { itemName: value } : value;
+    response.overrideTransactionDetails ??= {
+      notes: "",
+    };
+    response.overrideTransactionDetails.notes ??= "";
+    return response;
   }
 
   // Next, attempt to resolve through conditional association map
