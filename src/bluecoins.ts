@@ -5,10 +5,12 @@ import {
 } from "@prisma/client";
 import fs from "fs/promises";
 import Fuse from "fuse.js";
+import { Database } from "sqlite3";
 import type { TrackerData } from "./bluecoins.interface";
 import constants from "./constants";
 import type { Transaction as HdfcTransaction } from "./hdfc.interface";
 import { getRefinedItemName } from "./refinery";
+import { bluecoinsDateFormat } from "./utils";
 
 const prisma = new PrismaClient();
 
@@ -78,28 +80,50 @@ export async function addTransaction(
   const categoryID = previousSimilarTransaction?.categoryID || 0;
 
   // Add transaction to the database
+  // This has to be done using raw SQL because Prisma doesn't support
+  // the date format that Bluecoins uses
   console.log("Adding transaction to the database");
-  await prisma.tRANSACTIONSTABLE.create({
-    data: {
-      transactionsTableID: transactionId,
-      itemID: item.itemTableID,
-      amount: (transaction.deposit || -transaction.withdrawal) * 1000000,
-      transactionCurrency: "INR",
-      conversionRateNew: 1,
-      date: transaction.date,
-      transactionTypeID: transaction.deposit === 0 ? 3 : 4,
-      categoryID,
-      accountID: accountId,
-      notes: transaction.description,
-      status: 0,
-      accountReference: 1,
-      accountPairID: accountId,
-      uidPairID: transactionId,
-      deletedTransaction: 6,
-      newSplitTransactionID: 0,
-      transferGroupID: 0,
-      ...overrideTransactionDetails,
-    },
+  const createData = {
+    transactionsTableID: transactionId,
+    itemID: item.itemTableID,
+    amount: (transaction.deposit || -transaction.withdrawal) * 1000000,
+    transactionCurrency: "INR",
+    conversionRateNew: 1,
+    date: bluecoinsDateFormat(transaction.date),
+    transactionTypeID: transaction.deposit === 0 ? 3 : 4,
+    categoryID,
+    accountID: accountId,
+    notes: transaction.description,
+    status: 0,
+    accountReference: 1,
+    accountPairID: accountId,
+    uidPairID: transactionId,
+    deletedTransaction: 6,
+    newSplitTransactionID: 0,
+    transferGroupID: 0,
+  };
+  const columns = Object.keys(createData).sort();
+  const values = columns.map(
+    (column) => overrideTransactionDetails?.[column] ?? createData[column]
+  );
+  const db = new Database(constants.database.local);
+  await new Promise<void>((resolve, reject) => {
+    db.run(
+      `
+      INSERT INTO TRANSACTIONSTABLE (
+        ${columns.join(",")}
+      ) VALUES (
+        ${Array(values.length).fill("?").join(",")}
+      )
+    `,
+      values,
+      (err) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else resolve();
+      }
+    );
   });
 
   // Update tracker info
