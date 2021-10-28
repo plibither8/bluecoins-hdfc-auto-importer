@@ -4,6 +4,7 @@ config.json
 transactions.json
 state.json
 \_state.json
+src/refinery.ts
 
 # Created by https://www.toptal.com/developers/gitignore/api/node
 
