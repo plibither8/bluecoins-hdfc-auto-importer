@@ -51,7 +51,7 @@ export function getRefinedItemName(transaction: Transaction): RefinedOutput {
   if (result) {
     const [_, value] = result;
     const response: RefinedOutput =
-      value === "string" ? { itemName: value } : value;
+      typeof value === "string" ? { itemName: value } : value;
     response.overrideTransactionDetails ??= {
       notes: "",
     };

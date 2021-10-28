@@ -13,15 +13,18 @@ async function main() {
   console.log("Getting new transactions from HDFC...");
   const newTransactions = await hdfc.getTransactions();
   if (!newTransactions.length) {
-    console.log("No new transactions found");
+    console.log("\nNo new transactions found");
     return;
   }
 
   // Download latest database
-  console.log("Downloading latest database...");
+  console.log("\nDownloading latest database...");
   await dropbox.downloadFiles();
 
+  let count = 0;
   for (const transaction of newTransactions) {
+    console.log(`\n[ Transaction ${++count} / ${newTransactions.length} ]`);
+
     // Send transaction to Telegram
     console.log("Sending transaction to Telegram...");
     await telegram.notifyTransaction(
@@ -45,7 +48,7 @@ async function main() {
   }
 
   // Upload latest database
-  console.log("Uploading latest database...");
+  console.log("\nUploading latest database...");
   await dropbox.uploadFiles();
 
   // Kill entire process after runnning
